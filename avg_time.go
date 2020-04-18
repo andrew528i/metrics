@@ -19,7 +19,7 @@ type (
 	}
 )
 
-func NewAvgTimeMetric(client *redis.ClusterClient, interval int) *AvgTimeMetric {
+func NewAvgTimeMetric(client *redis.Client, interval int) *AvgTimeMetric {
 	avgCounter := NewAvgCounterMetric(client, interval)
 
 	return &AvgTimeMetric{avgCounter: avgCounter, interval: interval}

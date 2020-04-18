@@ -5,17 +5,17 @@ import (
 )
 
 type Metrics struct {
-	client *redis.ClusterClient
+	client *redis.Client
 
 	System   *SystemMetrics
 	Internal *InternalMetrics
 	Time     *AvgTimeMetric
 }
 
-func NewMetrics(client *redis.ClusterClient) *Metrics {
+func NewMetrics(client *redis.Client, interval int) *Metrics {
 	systemMetrics := NewSystemMetrics()
-	internalMetrics := NewInternalMetrics(client)
-	timeMetrics := NewAvgTimeMetric(client, 3)
+	internalMetrics := NewInternalMetrics(client, interval)
+	timeMetrics := NewAvgTimeMetric(client, interval)
 
 	return &Metrics{
 		client:   client,

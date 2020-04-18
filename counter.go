@@ -8,12 +8,12 @@ import (
 )
 
 type CounterMetric struct {
-	client *redis.ClusterClient
+	client *redis.Client
 
 	interval int // in minutes
 }
 
-func NewCounterMetric(client *redis.ClusterClient, interval int) *CounterMetric {
+func NewCounterMetric(client *redis.Client, interval int) *CounterMetric {
 	return &CounterMetric{client: client, interval: interval}
 }
 

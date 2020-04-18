@@ -8,12 +8,12 @@ import (
 )
 
 type AvgCounterMetric struct {
-	client *redis.ClusterClient
+	client *redis.Client
 
 	interval int // in minutes
 }
 
-func NewAvgCounterMetric(client *redis.ClusterClient, interval int) *AvgCounterMetric {
+func NewAvgCounterMetric(client *redis.Client, interval int) *AvgCounterMetric {
 	return &AvgCounterMetric{client: client, interval: interval}
 }
 
