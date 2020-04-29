@@ -5,14 +5,14 @@ import (
 )
 
 type Metrics struct {
-	client *redis.Client
+	client redis.UniversalClient
 
 	System   *SystemMetrics
 	Internal *InternalMetrics
 	Time     *AvgTimeMetric
 }
 
-func NewMetrics(client *redis.Client, interval int) *Metrics {
+func NewMetrics(client redis.UniversalClient, interval int) *Metrics {
 	systemMetrics := NewSystemMetrics()
 	internalMetrics := NewInternalMetrics(client, interval)
 	timeMetrics := NewAvgTimeMetric(client, interval)

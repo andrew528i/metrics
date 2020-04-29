@@ -7,7 +7,7 @@ type InternalMetrics struct {
 	AvgCounter *AvgCounterMetric
 }
 
-func NewInternalMetrics(client *redis.Client, interval int) *InternalMetrics {
+func NewInternalMetrics(client redis.UniversalClient, interval int) *InternalMetrics {
 	counter := NewCounterMetric(client, interval)
 	avgCounter := NewAvgCounterMetric(client, interval)
 
