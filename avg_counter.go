@@ -10,15 +10,20 @@ import (
 type AvgCounterMetric struct {
 	client redis.UniversalClient
 
-	interval int // in minutes
+	interval     int // in minutes
+	globalPrefix string
 }
 
-func NewAvgCounterMetric(client redis.UniversalClient, interval int) *AvgCounterMetric {
-	return &AvgCounterMetric{client: client, interval: interval}
+func NewAvgCounterMetric(client redis.UniversalClient, interval int, globalPrefix string) *AvgCounterMetric {
+	return &AvgCounterMetric{
+		client:       client,
+		interval:     interval,
+		globalPrefix: globalPrefix,
+	}
 }
 
 func (s AvgCounterMetric) Add(name string, ms int64) error {
-	key := getKey("avg_counter", name)
+	key := getKey(s.globalPrefix+"avg_counter", name)
 	exists, err := s.client.Exists(key).Result()
 	if err != nil {
 		return err
@@ -30,7 +35,7 @@ func (s AvgCounterMetric) Add(name string, ms int64) error {
 	}
 
 	if exists == 0 {
-		s.client.Expire(key, time.Minute * time.Duration(s.interval) * 2)
+		s.client.Expire(key, time.Minute*time.Duration(s.interval)*2)
 	}
 
 	return nil
@@ -44,7 +49,7 @@ func (s AvgCounterMetric) GetAvg(name string) (int64, error) {
 
 	for i := 0; i < s.interval; i += 1 {
 		key := getKeyByDate(
-			now.Add(-1 * time.Minute * time.Duration(i)), "avg_counter", name)
+			now.Add(-1*time.Minute*time.Duration(i)), s.globalPrefix+"avg_counter", name)
 		exists, err := s.client.Exists(key).Result()
 		if err != nil {
 			return 0, err
