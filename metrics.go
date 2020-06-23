@@ -12,10 +12,14 @@ type Metrics struct {
 	Time     *AvgTimeMetric
 }
 
-func NewMetrics(client redis.UniversalClient, interval int) *Metrics {
+func NewMetrics(client redis.UniversalClient, interval int, globalPrefix string) *Metrics {
+	if globalPrefix == "" {
+		globalPrefix = "metrics:"
+	}
+
 	systemMetrics := NewSystemMetrics()
-	internalMetrics := NewInternalMetrics(client, interval)
-	timeMetrics := NewAvgTimeMetric(client, interval)
+	internalMetrics := NewInternalMetrics(client, interval, globalPrefix)
+	timeMetrics := NewAvgTimeMetric(client, interval, globalPrefix)
 
 	return &Metrics{
 		client:   client,

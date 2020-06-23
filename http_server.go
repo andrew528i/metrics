@@ -9,10 +9,15 @@ import (
 
 type Server struct {
 	metrics *Metrics
+	cfg *ServerConfig
 }
 
-func NewServer(metrics *Metrics) *Server {
-	return &Server{metrics: metrics}
+type ServerConfig struct {
+	Addr string
+}
+
+func NewServer(metrics *Metrics, cfg *ServerConfig) *Server {
+	return &Server{metrics: metrics, cfg: cfg}
 }
 
 func (s Server) Run() error {
@@ -54,7 +59,7 @@ func (s Server) Run() error {
 
 	http.Handle("/", rtr)
 
-	return http.ListenAndServe(":6767", nil)
+	return http.ListenAndServe(s.cfg.Addr, nil)
 }
 
 func (s Server) getSystemMetrics(name string) (string, error) {

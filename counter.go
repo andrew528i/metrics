@@ -10,11 +10,16 @@ import (
 type CounterMetric struct {
 	client redis.UniversalClient
 
-	interval int // in minutes
+	interval     int // in minutes
+	globalPrefix string
 }
 
-func NewCounterMetric(client redis.UniversalClient, interval int) *CounterMetric {
-	return &CounterMetric{client: client, interval: interval}
+func NewCounterMetric(client redis.UniversalClient, interval int, globalPrefix string) *CounterMetric {
+	return &CounterMetric{
+		client:       client,
+		interval:     interval,
+		globalPrefix: globalPrefix,
+	}
 }
 
 func (s CounterMetric) Get(name string) (int, error) {
@@ -22,7 +27,7 @@ func (s CounterMetric) Get(name string) (int, error) {
 	total := 0
 
 	for i := 0; i < s.interval; i += 1 {
-		key := getKeyByDate(now.Add(-1 * time.Minute * time.Duration(i)), "counter", name)
+		key := getKeyByDate(now.Add(-1*time.Minute*time.Duration(i)), s.globalPrefix+"counter", name)
 		exists, err := s.client.Exists(key).Result()
 		if err != nil {
 			return 0, err
@@ -49,18 +54,17 @@ func (s CounterMetric) Get(name string) (int, error) {
 }
 
 func (s CounterMetric) Increase(name string) error {
-	key := getKey("counter", name)
+	key := getKey(s.globalPrefix+"counter", name)
 	result, err := s.client.Exists(key).Result()
 	if err != nil {
 		return err
 	}
 
 	if result == 0 {
-		s.client.SetNX(key, 1, time.Minute * time.Duration(s.interval) * 2)
+		s.client.SetNX(key, 1, time.Minute*time.Duration(s.interval)*2)
 	} else {
 		s.client.Incr(key)
 	}
 
 	return nil
 }
-

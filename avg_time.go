@@ -19,10 +19,13 @@ type (
 	}
 )
 
-func NewAvgTimeMetric(client redis.UniversalClient, interval int) *AvgTimeMetric {
-	avgCounter := NewAvgCounterMetric(client, interval)
+func NewAvgTimeMetric(client redis.UniversalClient, interval int, globalPrefix string) *AvgTimeMetric {
+	avgCounter := NewAvgCounterMetric(client, interval, globalPrefix)
 
-	return &AvgTimeMetric{avgCounter: avgCounter, interval: interval}
+	return &AvgTimeMetric{
+		avgCounter: avgCounter,
+		interval:   interval,
+	}
 }
 
 func (s AvgTimeMetric) Start(names ...string) *AvgTimeMetricTimer {
@@ -42,6 +45,6 @@ func (s AvgTimeMetricTimer) Stop() {
 
 	for _, name := range s.names {
 		// NOTE: second -> millisecond -> microsecond -> nanosecond
-		s.avgCounter.Add(name, dt / 1000000)
+		s.avgCounter.Add(name, dt/1000000)
 	}
 }
