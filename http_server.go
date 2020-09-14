@@ -9,7 +9,7 @@ import (
 
 type Server struct {
 	metrics *Metrics
-	cfg *ServerConfig
+	cfg     *ServerConfig
 }
 
 type ServerConfig struct {
@@ -21,6 +21,11 @@ func NewServer(metrics *Metrics, cfg *ServerConfig) *Server {
 }
 
 func (s Server) Run() error {
+	http.Handle("/", s.GetHandler(""))
+	return http.ListenAndServe(s.cfg.Addr, nil)
+}
+
+func (s Server) GetHandler(prefix string) http.Handler {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		metricType := params["type"]
@@ -55,11 +60,8 @@ func (s Server) Run() error {
 	}
 
 	rtr := mux.NewRouter()
-	rtr.HandleFunc("/{type:[a-zA-Z_]+}/{name:[a-zA-Z_]+}", handler).Methods("GET")
-
-	http.Handle("/", rtr)
-
-	return http.ListenAndServe(s.cfg.Addr, nil)
+	rtr.HandleFunc("/"+prefix+"/{type:[a-zA-Z_]+}/{name:[a-zA-Z_]+}", handler).Methods("GET")
+	return rtr
 }
 
 func (s Server) getSystemMetrics(name string) (string, error) {
